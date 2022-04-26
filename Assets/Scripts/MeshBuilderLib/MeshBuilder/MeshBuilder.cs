@@ -1,0 +1,336 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace MeshBuilderLib
+{
+    public class MeshBuilder
+    {
+        /// <summary>
+        /// The GameObject the MeshBuilder is working on.
+        /// </summary>
+        private GameObject MeshObject;
+
+        /// <summary>
+        /// Vertex data of the mesh. Contains position and uv for all vertices. Vertex data is shared across submeshes.
+        /// </summary>
+        private List<MeshVertex> Vertices = new List<MeshVertex>();
+
+        /// <summary>
+        /// Triangle data of the mesh. The index of the outer list represents the index of the submesh that the triangles in the inner list are part of.
+        /// </summary>
+        private List<List<MeshTriangle>> Triangles = new List<List<MeshTriangle>>();
+
+        /// <summary>
+        /// The index of the submesh that new triangles are added to (if not specified otherwise).
+        /// </summary>
+        private int CurrentSubmesh = -1;
+
+        /// <summary>
+        /// Material data for the mesh. The index in the list represents the index of the submesh that the material is applied to.
+        /// </summary>
+        private List<Material> Materials = new List<Material>();
+
+        #region Instancing
+
+        /// <summary>
+        /// Create a MeshBuilder for a new GameObject. Does not creat any submesh.
+        /// </summary>
+        public MeshBuilder(string name, string layer, Transform parent = null)
+        {
+            MeshObject = new GameObject(name);
+            MeshObject.layer = LayerMask.NameToLayer(layer);
+            if (parent != null) MeshObject.transform.SetParent(parent);
+            MeshObject.AddComponent<MeshFilter>();
+            MeshRenderer renderer = MeshObject.AddComponent<MeshRenderer>();
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.TwoSided;
+        }
+
+        /// <summary>
+        /// Create a MeshBuilder for an existing object. Used to add/modify a mesh. Material is given for the first submesh. Does not creat any submesh.
+        /// </summary>
+        public MeshBuilder(GameObject meshObject)
+        {
+            MeshObject = meshObject;
+        }
+
+        #endregion
+
+        #region Applying
+
+        /// <summary>
+        /// Applies all mesh data to the MeshFilter of and all material data to the MeshRenderer of the MeshObject GameObject.
+        /// If addCollider is set, a MeshCollider will be updated/added to the object.
+        /// If applyInEditor is set, then the shared attributes of the mesh will be set, meaning it will show up in the editor.
+        /// </summary>
+        public GameObject ApplyMesh(bool addCollider = false, bool applyInEditor = false)
+        {
+            // Set index values for all vertices
+            for (int i = 0; i < Vertices.Count; i++) Vertices[i].Id = i;
+
+            MeshFilter meshFilter = MeshObject.GetComponent<MeshFilter>();
+            MeshRenderer meshRenderer = MeshObject.GetComponent<MeshRenderer>();
+
+            Mesh targetMesh = applyInEditor ? meshFilter.sharedMesh : meshFilter.mesh;
+            targetMesh.Clear();
+            targetMesh.SetVertices(Vertices.Select(x => x.Position).ToArray()); // Set the vertices
+            targetMesh.SetUVs(0, Vertices.Select(x => x.UV).ToArray()); // Set the UV's
+            targetMesh.SetUVs(1, Vertices.Select(x => x.UV2).ToArray()); // Set the UV's
+            targetMesh.subMeshCount = Triangles.Count; // Set the submesh count
+            for (int i = 0; i < Triangles.Count; i++) // Set the triangles for each submesh
+            {
+                List<int> triangles = new List<int>();
+                foreach (MeshTriangle triangle in Triangles[i])
+                {
+                    triangles.Add(triangle.Vertex1.Id);
+                    triangles.Add(triangle.Vertex2.Id);
+                    triangles.Add(triangle.Vertex3.Id);
+                }
+                targetMesh.SetTriangles(triangles, i);
+            }
+            targetMesh.RecalculateNormals();
+
+            // Set the material for each submesh
+            if (applyInEditor) meshRenderer.sharedMaterials = Materials.ToArray(); 
+            else meshRenderer.materials = Materials.ToArray();
+
+            // Collider
+            if(addCollider)
+            {
+                MeshCollider meshCollider = MeshObject.GetComponent<MeshCollider>();
+                if (meshCollider != null) GameObject.Destroy(meshCollider);
+                MeshObject.AddComponent<MeshCollider>();
+            }
+
+            return MeshObject;
+        }
+
+        #endregion
+
+        #region Basic Building
+
+        /// <summary>
+        /// Adds a new submesh to the mesh with the specified Material. Returns the index of the new submesh.
+        /// </summary>
+        public int AddNewSubmesh(Material material)
+        {
+            Triangles.Add(new List<MeshTriangle>());
+            CurrentSubmesh++;
+            Materials.Add(material);
+            return CurrentSubmesh;
+        }
+
+        /// <summary>
+        /// Add a new vertex given its position and uv(s) data to the mesh.
+        /// </summary>
+        public MeshVertex AddVertex(Vector3 position, Vector2 uv, Vector2? uv2 = null)
+        {
+            MeshVertex vertex = new MeshVertex(position, uv, uv2);
+            Vertices.Add(vertex);
+            return vertex;
+        }
+
+        /// <summary>
+        /// Add a MeshVertex to the mesh.
+        /// </summary>
+        public void AddVertex(MeshVertex meshVertex)
+        {
+            Vertices.Add(meshVertex);
+        }
+
+        /// <summary>
+        /// Remove a specific vertex from the mesh.
+        /// </summary>
+        public void RemoveVertex(MeshVertex meshVertex)
+        {
+            Vertices.Remove(meshVertex);
+        }
+
+        /// <summary>
+        /// Add a triangle to the mesh given the submesh index and reference of the 3 MeshVertices.
+        /// </summary>
+        public MeshTriangle AddTriangle(int submeshIndex, MeshVertex vertex1, MeshVertex vertex2, MeshVertex vertex3)
+        {
+            MeshTriangle triangle = new MeshTriangle(submeshIndex, vertex1, vertex2, vertex3);
+            Triangles[submeshIndex].Add(triangle);
+            return triangle;
+        }
+
+        /// <summary>
+        /// Removes a triangle from a submesh. Does not remove the associated vertices.
+        /// </summary>
+        public void RemoveTriangle(MeshTriangle triangle)
+        {
+            Triangles[triangle.SubmeshIndex].Remove(triangle);
+        }
+
+        /// <summary>
+        /// Adds triangles for a plane to a submesh. Order of vertices must be clockwise. Returns the created triangles a list.
+        /// </summary>
+        public List<MeshTriangle> AddPlane(int submeshIndex, MeshVertex v1, MeshVertex v2, MeshVertex v3, MeshVertex v4)
+        {
+            MeshTriangle t1 = AddTriangle(submeshIndex, v1, v3, v2);
+            MeshTriangle t2 = AddTriangle(submeshIndex, v1, v4, v3);
+            return new List<MeshTriangle>() { t1, t2 };
+        }
+
+        /// <summary>
+        /// Removes all triangles and vertices of a plane from a submesh.
+        /// </summary>
+        public void RemovePlane(int submeshIndex, MeshPlane plane)
+        {
+            Vertices.Remove(plane.Vertex1);
+            Vertices.Remove(plane.Vertex2);
+            Vertices.Remove(plane.Vertex3);
+            Vertices.Remove(plane.Vertex4);
+            RemoveTriangle(plane.Triangle1);
+            RemoveTriangle(plane.Triangle2);
+        }
+
+        /// <summary>
+        /// Adds all MeshVertices and MeshTriangles to build a plane. Returns a MeshPlane containing all data.
+        /// UV from first to second vector is uv-y-axis
+        /// </summary>
+        public MeshPlane BuildPlane(int submeshIndex, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector2 uvStart, Vector2 uvEnd)
+        {
+            MeshVertex mv1 = AddVertex(v1, uvStart);
+            MeshVertex mv2 = AddVertex(v2, new Vector2(uvStart.x, uvEnd.y));
+            MeshVertex mv3 = AddVertex(v3, uvEnd);
+            MeshVertex mv4 = AddVertex(v4, new Vector2(uvEnd.x, uvStart.y));
+
+            MeshTriangle tri1 = AddTriangle(submeshIndex, mv1, mv3, mv2);
+            MeshTriangle tri2 = AddTriangle(submeshIndex, mv1, mv4, mv3);
+
+            return new MeshPlane(mv1, mv2, mv3, mv4, tri1, tri2);
+        }
+
+        /// <summary>
+        /// Builds and returns a 2-dimensional polygon, given it's layout and altitude. MeshPolygons are always flat on the y-axis.
+        /// </summary>
+        public MeshPolygon BuildPolygon(int submeshIndex, Polygon polygon, float altitude, bool flipFaceDirection = false)
+        {
+            List<MeshVertex> vertices = new List<MeshVertex>();
+            List<MeshTriangle> triangles = new List<MeshTriangle>();
+            List<Vector2> uvs = polygon.GetUVs();
+            for (int i = 0; i < polygon.NumPoints; i++)
+            {
+                vertices.Add(AddVertex(new Vector3(polygon.Points[i].x, altitude, polygon.Points[i].y), uvs[i]));
+            }
+            int[] vIds = PolygonTriangulator.Triangulate(polygon, flipFaceDirection);
+            for (int i = 0; i < vIds.Length; i += 3)
+            {
+                triangles.Add(AddTriangle(submeshIndex, vertices[vIds[i]], vertices[vIds[i + 1]], vertices[vIds[i + 2]]));
+            }
+            return new MeshPolygon(vertices, triangles);
+        }
+
+        /// <summary>
+        /// Builds and returns a room given its ground plan and height.
+        /// </summary>
+        public MeshRoom BuildRoom(Polygon groundPlan, float height)
+        {
+            Debug.Log(height);
+
+            // Floor
+            int floorSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomFloorMaterial());
+            MeshPolygon floor = BuildPolygon(floorSubmeshIndex, groundPlan, 0f);
+
+            // Ceiling
+            int ceilingSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomCeilingMaterial());
+            MeshPolygon ceiling = BuildPolygon(ceilingSubmeshIndex, groundPlan, height, flipFaceDirection: true);
+
+            // Walls and exit points
+            int wallSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomWallMaterial());
+            List<MeshPlane> walls = new List<MeshPlane>();
+            float uvStart = 0f;
+            float uvEnd = 0f;
+            for (int i = 0; i < groundPlan.Points.Count; i++)
+            {
+                Vector2 point = groundPlan.Points[i];
+                Vector2 nextPoint = i < groundPlan.Points.Count - 1 ? groundPlan.Points[i + 1] : groundPlan.Points[0];
+
+                uvEnd += Vector2.Distance(point, nextPoint);
+
+                walls.Add(BuildPlane(wallSubmeshIndex,
+                    new Vector3(point.x, 0, point.y),
+                    new Vector3(point.x, height, point.y),
+                    new Vector3(nextPoint.x, height, nextPoint.y),
+                    new Vector3(nextPoint.x, 0, nextPoint.y),
+                    new Vector2(uvStart * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, 0),
+                    new Vector2(uvEnd * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, height * LiminalDungeonGenerator.WALL_TEXTURE_SCALING)
+                    ));
+
+                uvStart = uvEnd;
+            }
+
+            return new MeshRoom(floor, ceiling, walls, floorSubmeshIndex, ceilingSubmeshIndex, wallSubmeshIndex);
+        }
+
+        #endregion
+
+        #region Complex Building
+
+        /// <summary>
+        /// Carves a hole into a plane. Only works correctly for rectangular planes at the moment. The hole position is the center.
+        /// </summary>
+        public void CarveHoleInPlane(int submeshIndex, MeshPlane plane, Vector2 holePosition, Vector2 holeDimensions)
+        {
+            // Remove the wall that contains the hole
+            RemovePlane(submeshIndex, plane);
+
+            // Add new vertices on the sides of the hole
+            Vector3 planeVectorX = plane.Vertex4.Position - plane.Vertex1.Position;
+            float planeLengthX = planeVectorX.magnitude;
+            float relHoleWidth = holeDimensions.x / planeLengthX;
+            float relativeHolePositionX = holePosition.x / planeLengthX;
+            float xStart = relativeHolePositionX - relHoleWidth / 2;
+            float xEnd = relativeHolePositionX + relHoleWidth / 2;
+
+            Vector3 planeVectorY = plane.Vertex2.Position - plane.Vertex1.Position;
+            float planeLengthY = planeVectorY.magnitude;
+            float relHoleHeight = holeDimensions.y / planeLengthY;
+            float relativeHolePositionY = holePosition.y / planeLengthY;
+            float yStart = relativeHolePositionY - relHoleHeight / 2;
+            float yEnd = relativeHolePositionY + relHoleHeight / 2;
+
+            float uvVectorX = plane.Vertex4.UV.x - plane.Vertex1.UV.x;
+            float uvStartX = plane.Vertex1.UV.x + xStart * uvVectorX;
+            float uvEndX = plane.Vertex1.UV.x + xEnd * uvVectorX;
+
+            float uvVectorY = plane.Vertex2.UV.y - plane.Vertex1.UV.y;
+            float uvStartY = plane.Vertex1.UV.y + yStart * uvVectorY;
+            float uvEndY = plane.Vertex1.UV.y + yEnd * uvVectorY;
+
+            Vector3 pv1 = plane.Vertex1.Position;
+            Vector3 pv2 = plane.Vertex2.Position;
+            Vector3 pv3 = plane.Vertex3.Position;
+            Vector3 pv4 = plane.Vertex4.Position;
+
+            Vector3 sb1 = plane.Vertex1.Position + xStart * planeVectorX;
+            Vector3 st1 = plane.Vertex2.Position + xStart * planeVectorX;
+            Vector3 st2 = plane.Vertex2.Position + xEnd * planeVectorX;
+            Vector3 sb2 = plane.Vertex1.Position + xEnd * planeVectorX;
+
+            Vector3 hb1 = plane.Vertex1.Position + xStart * planeVectorX + yStart * planeVectorY;
+            Vector3 ht1 = plane.Vertex1.Position + xStart * planeVectorX + yEnd * planeVectorY;
+            Vector3 ht2 = plane.Vertex1.Position + xEnd * planeVectorX + yEnd * planeVectorY;
+            Vector3 hb2 = plane.Vertex1.Position + xEnd * planeVectorX + yStart * planeVectorY;
+
+            BuildPlane(submeshIndex, pv1, pv2, st1, sb1, plane.Vertex1.UV, new Vector2(uvStartX, plane.Vertex2.UV.y));
+            BuildPlane(submeshIndex, sb2, st2, pv3, pv4, new Vector2(uvEndX, plane.Vertex1.UV.y), plane.Vertex3.UV);
+
+            if (holePosition.y + holeDimensions.y / 2 < planeLengthY) // Add a plane above the hole if one is needed
+                BuildPlane(submeshIndex, ht1, st1, st2, ht2, new Vector2(uvStartX, uvEndY), new Vector2(uvEndX, plane.Vertex3.UV.y));
+
+            // Add vertices below the hole
+            if (holePosition.y - holeDimensions.y / 2 > 0) // Add a plane below the hole if one is needed
+                BuildPlane(submeshIndex, sb1, hb1, hb2, sb2, new Vector2(uvStartX, plane.Vertex1.UV.y), new Vector2(uvEndX, uvStartY));
+
+            ApplyMesh(addCollider: true);
+        }
+
+        #endregion
+
+    }
+}
