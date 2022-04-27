@@ -9,8 +9,7 @@ namespace EditorGeneration
     {
         public void GenerateBuilding(EditorMeshObject target, BuildingGenerationSettings settings)
         {
-            target.ClearInEditor();
-            target.Init();
+            InitGenerator(target);
 
             int groundPlanCorners = settings.GroundPlan.Points.Count;
 

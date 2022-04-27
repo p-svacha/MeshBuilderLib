@@ -89,6 +89,7 @@ namespace MeshBuilderLib
                 }
                 targetMesh.SetTriangles(triangles, i);
             }
+            targetMesh.Optimize();
             targetMesh.RecalculateNormals();
 
             // Set the material for each submesh
@@ -206,9 +207,220 @@ namespace MeshBuilderLib
         }
 
         /// <summary>
+        /// Builds a flat circle (y-axis) on the specified submesh and returns created vertices and triangles as a MeshElement.
+        /// </summary>
+        public MeshElement BuildCircle(int submeshIndex, Vector3 centerPosition, float radius, int nEdges, bool flipFaceDirection = false)
+        {
+            List<MeshVertex> vertices = new List<MeshVertex>();
+            List<MeshTriangle> triangles = new List<MeshTriangle>();
+
+            MeshVertex centerPoint = AddVertex(Vector3.zero, Vector2.zero);
+            vertices.Add(centerPoint);
+            MeshVertex firstOuterPoint = null, prevOuterPoint = null, currentOuterPoint = null;
+
+            float angleStep = 360f / nEdges;
+            for(int i = 0; i < nEdges; i++)
+            {
+                float angle = i * angleStep;
+                float x = radius * Mathf.Sin(Mathf.Deg2Rad * angle);
+                float y = radius * Mathf.Cos(Mathf.Deg2Rad * angle);
+                prevOuterPoint = currentOuterPoint;
+                currentOuterPoint = AddVertex(new Vector3(x, 0f, y), new Vector2(x, y));
+                vertices.Add(currentOuterPoint);
+
+                if (i == 0) firstOuterPoint = currentOuterPoint;
+                else triangles.Add(flipFaceDirection ? AddTriangle(submeshIndex, centerPoint, currentOuterPoint, prevOuterPoint) : AddTriangle(submeshIndex, centerPoint, prevOuterPoint, currentOuterPoint));
+
+                if (i == nEdges - 1) triangles.Add(flipFaceDirection ? AddTriangle(submeshIndex, centerPoint, firstOuterPoint, currentOuterPoint) : AddTriangle(submeshIndex, centerPoint, currentOuterPoint, firstOuterPoint));
+            }
+
+            foreach (MeshVertex v in vertices) v.Position += centerPosition;
+
+            return new MeshElement(submeshIndex, vertices, triangles);
+        }
+
+        /// <summary>
+        /// Adds all MeshVertices and MeshTriangles to build a sphere on the specified submesh and returns them as a MeshElement.
+        /// nRows and nCols define the level of detail of the sphere.
+        /// </summary>
+        public MeshElement BuildSphere(int submeshIndex, Vector3 centerPosition, float width, float height, int nRows, int nCols)
+        {
+            List<MeshVertex> vertices = new List<MeshVertex>();
+            int numVertices = (nRows + 1) * (nCols + 1);
+            for (int i = 0; i < numVertices; i++)
+            {
+                float x = i % (nCols + 1);
+                float y = i / (nCols + 1);
+                float x_pos = x / nCols;
+                float y_pos = y / nRows;
+                Vector3 vertexPos = new Vector3(x_pos, y_pos, 0);
+
+                float u = x / nCols;
+                float v = y / nRows;
+                Vector2 vertexUv = new Vector2(u, v);
+
+                vertices.Add(AddVertex(vertexPos, vertexUv));
+            }
+
+            List<MeshTriangle> triangles = new List<MeshTriangle>();
+            int numTriangles = 2 * nRows * nCols;
+            for (int i = 0; i < numTriangles; i++)
+            {
+                int[] triIndex = new int[3];
+                if (i % 2 == 0)
+                {
+                    triIndex[0] = i / 2 + i / (2 * nCols);
+                    triIndex[1] = triIndex[0] + 1;
+                    triIndex[2] = triIndex[0] + (nCols + 1);
+                }
+                else
+                {
+                    triIndex[0] = (i + 1) / 2 + i / (2 * nCols);
+                    triIndex[1] = triIndex[0] + (nCols + 1);
+                    triIndex[2] = triIndex[1] - 1;
+
+                }
+                triangles.Add(AddTriangle(submeshIndex, vertices[triIndex[0]], vertices[triIndex[2]], vertices[triIndex[1]]));
+            }
+
+            for (int i = 0; i < numVertices; i++)
+            {
+                Vector3 spherePos;
+                spherePos.x = width * Mathf.Cos(vertices[i].Position.x * 2 * Mathf.PI) * Mathf.Cos(vertices[i].Position.y * Mathf.PI - Mathf.PI / 2);
+                spherePos.y = height * Mathf.Sin(vertices[i].Position.y * Mathf.PI - Mathf.PI / 2);
+                spherePos.z = width * Mathf.Sin(vertices[i].Position.x * 2 * Mathf.PI) * Mathf.Cos(vertices[i].Position.y * Mathf.PI - Mathf.PI / 2);
+
+                vertices[i].Position = spherePos;
+            }
+
+            foreach (MeshVertex v in vertices) v.Position += centerPosition;
+
+            return new MeshElement(submeshIndex, vertices, triangles);
+        }
+
+        /// <summary>
+        /// Adds all MeshVertices and MeshTriangles to build a regular cylinder on the specified submesh and returns them as a MeshElement.
+        /// </summary>
+        public MeshElement BuildCylinder(int submeshIndex, Vector3 bottomCenterPosition, float radius, float height, int nEdges)
+        {
+            List<MeshVertex> vertices = new List<MeshVertex>();
+            List<MeshTriangle> triangles = new List<MeshTriangle>();
+
+            // Top and Bottom flat circle
+            MeshElement botCircle = BuildCircle(submeshIndex, bottomCenterPosition, radius, nEdges, flipFaceDirection: true);
+            MeshElement topCircle = BuildCircle(submeshIndex, bottomCenterPosition + new Vector3(0f, height, 0f), radius, nEdges);
+
+            vertices.AddRange(botCircle.Vertices);
+            vertices.AddRange(topCircle.Vertices);
+            triangles.AddRange(botCircle.Triangles);
+            triangles.AddRange(topCircle.Triangles);
+
+            // Walls
+            Vector3 firstBotPoint = Vector3.zero, firstTopPoint = Vector3.zero, prevBotPoint = Vector3.zero, prevTopPoint = Vector3.zero, currentBotPoint = Vector3.zero, currentTopPoint = Vector3.zero;
+
+            float angleStep = 360f / nEdges;
+            for (int i = 0; i < nEdges; i++)
+            {
+                float angle = i * angleStep;
+                float x = radius * Mathf.Sin(Mathf.Deg2Rad * angle);
+                float y = radius * Mathf.Cos(Mathf.Deg2Rad * angle);
+                prevBotPoint = currentBotPoint;
+                prevTopPoint = currentTopPoint;
+
+                currentBotPoint = bottomCenterPosition + new Vector3(x, 0f, y);
+                currentTopPoint = bottomCenterPosition + new Vector3(x, height, y);
+
+                if (i == 0)
+                {
+                    firstBotPoint = currentBotPoint;
+                    firstTopPoint = currentTopPoint;
+                }
+                else
+                {
+                    MeshPlane wall = BuildPlane(submeshIndex, prevBotPoint, prevTopPoint, currentTopPoint, currentBotPoint, new Vector2(0f, 0f), new Vector2(1f, height));
+                    vertices.Add(wall.Vertex1); vertices.Add(wall.Vertex2); vertices.Add(wall.Vertex3); vertices.Add(wall.Vertex4);
+                    triangles.Add(wall.Triangle1); triangles.Add(wall.Triangle2);
+                }
+
+                if (i == nEdges - 1) 
+                {
+                    MeshPlane wall = BuildPlane(submeshIndex, currentBotPoint, currentTopPoint, firstTopPoint, firstBotPoint, new Vector2(0f, 0f), new Vector2(1f, height));
+                    vertices.Add(wall.Vertex1); vertices.Add(wall.Vertex2); vertices.Add(wall.Vertex3); vertices.Add(wall.Vertex4);
+                    triangles.Add(wall.Triangle1); triangles.Add(wall.Triangle2);
+                }
+            }
+
+            return new MeshElement(submeshIndex, vertices, triangles);
+        }
+
+        /// <summary>
+        /// Builds a cylinder consisting of different segments that can have their own radius and height and adds it to the specified submesh.
+        /// Returns all created vertices and triangles as a MeshElement.
+        /// </summary>
+        public MeshElement BuildSegmentedCylinder(int submeshIndex, Vector3 bottomCenterPosition, List<float> stepRadii, List<float> stepHeights, int nEdges)
+        {
+            List<MeshVertex> vertices = new List<MeshVertex>();
+            List<MeshTriangle> triangles = new List<MeshTriangle>();
+
+            // Top and Bottom flat circle
+            MeshElement botCircle = BuildCircle(submeshIndex, bottomCenterPosition, stepRadii[0], nEdges, flipFaceDirection: true);
+            MeshElement topCircle = BuildCircle(submeshIndex, bottomCenterPosition + new Vector3(0f, stepHeights.Sum(), 0f), stepRadii.Last(), nEdges);
+
+            vertices.AddRange(botCircle.Vertices);
+            vertices.AddRange(topCircle.Vertices);
+            triangles.AddRange(botCircle.Triangles);
+            triangles.AddRange(topCircle.Triangles);
+
+            // Segment walls
+            int nSegments = stepHeights.Count;
+            float angleStep = 360f / nEdges;
+            float currentHeight = 0f;
+            for (int s = 0; s < nSegments; s++)
+            {
+                Vector3 firstBotPoint = Vector3.zero, firstTopPoint = Vector3.zero, prevBotPoint = Vector3.zero, prevTopPoint = Vector3.zero, currentBotPoint = Vector3.zero, currentTopPoint = Vector3.zero;
+                for (int i = 0; i < nEdges; i++)
+                {
+                    float angle = i * angleStep;
+                    float botX = stepRadii[s] * Mathf.Sin(Mathf.Deg2Rad * angle);
+                    float botY = stepRadii[s] * Mathf.Cos(Mathf.Deg2Rad * angle);
+                    float topX = stepRadii[s + 1] * Mathf.Sin(Mathf.Deg2Rad * angle);
+                    float topY = stepRadii[s + 1] * Mathf.Cos(Mathf.Deg2Rad * angle);
+                    prevBotPoint = currentBotPoint;
+                    prevTopPoint = currentTopPoint;
+
+                    currentBotPoint = bottomCenterPosition + new Vector3(botX, currentHeight, botY);
+                    currentTopPoint = bottomCenterPosition + new Vector3(topX, currentHeight + stepHeights[s], topY);
+
+                    if (i == 0)
+                    {
+                        firstBotPoint = currentBotPoint;
+                        firstTopPoint = currentTopPoint;
+                    }
+                    else
+                    {
+                        MeshPlane wall = BuildPlane(submeshIndex, prevBotPoint, prevTopPoint, currentTopPoint, currentBotPoint, new Vector2(0f, currentHeight), new Vector2(1f, currentHeight + stepHeights[s]));
+                        vertices.Add(wall.Vertex1); vertices.Add(wall.Vertex2); vertices.Add(wall.Vertex3); vertices.Add(wall.Vertex4);
+                        triangles.Add(wall.Triangle1); triangles.Add(wall.Triangle2);
+                    }
+
+                    if (i == nEdges - 1)
+                    {
+                        MeshPlane wall = BuildPlane(submeshIndex, currentBotPoint, currentTopPoint, firstTopPoint, firstBotPoint, new Vector2(0f, currentHeight), new Vector2(1f, currentHeight + stepHeights[s]));
+                        vertices.Add(wall.Vertex1); vertices.Add(wall.Vertex2); vertices.Add(wall.Vertex3); vertices.Add(wall.Vertex4);
+                        triangles.Add(wall.Triangle1); triangles.Add(wall.Triangle2);
+                    }
+                }
+
+                currentHeight += stepHeights[s];
+            }
+
+            return new MeshElement(submeshIndex, vertices, triangles);
+        }
+
+        /// <summary>
         /// Builds and returns a 2-dimensional polygon, given it's layout and altitude. MeshPolygons are always flat on the y-axis.
         /// </summary>
-        public MeshPolygon BuildPolygon(int submeshIndex, Polygon polygon, float altitude, bool flipFaceDirection = false)
+        public MeshElement BuildPolygon(int submeshIndex, Polygon polygon, float altitude, bool flipFaceDirection = false)
         {
             List<MeshVertex> vertices = new List<MeshVertex>();
             List<MeshTriangle> triangles = new List<MeshTriangle>();
@@ -222,7 +434,7 @@ namespace MeshBuilderLib
             {
                 triangles.Add(AddTriangle(submeshIndex, vertices[vIds[i]], vertices[vIds[i + 1]], vertices[vIds[i + 2]]));
             }
-            return new MeshPolygon(vertices, triangles);
+            return new MeshElement(submeshIndex, vertices, triangles);
         }
 
         /// <summary>
@@ -230,15 +442,13 @@ namespace MeshBuilderLib
         /// </summary>
         public MeshRoom BuildRoom(Polygon groundPlan, float height)
         {
-            Debug.Log(height);
-
             // Floor
             int floorSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomFloorMaterial());
-            MeshPolygon floor = BuildPolygon(floorSubmeshIndex, groundPlan, 0f);
+            MeshElement floor = BuildPolygon(floorSubmeshIndex, groundPlan, 0f);
 
             // Ceiling
             int ceilingSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomCeilingMaterial());
-            MeshPolygon ceiling = BuildPolygon(ceilingSubmeshIndex, groundPlan, height, flipFaceDirection: true);
+            MeshElement ceiling = BuildPolygon(ceilingSubmeshIndex, groundPlan, height, flipFaceDirection: true);
 
             // Walls and exit points
             int wallSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomWallMaterial());

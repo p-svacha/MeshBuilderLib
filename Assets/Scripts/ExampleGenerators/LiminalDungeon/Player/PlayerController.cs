@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     public Transform GroundCheck;
     public CharacterController Controller;
 
-    public float MouseSensitivity = 300f;
+    public float MouseSensitivity = 5f;
     public float MovementSpeed = 12f;
     public float JumpHeight = 3f;
 
@@ -38,8 +38,8 @@ public class PlayerController : MonoBehaviour
         IsOnGround = Physics.CheckSphere(GroundCheck.position, GroundDistance, GroudMask);
 
         // Looking
-        float mouseX = Input.GetAxis("Mouse X") * MouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * MouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity;
 
         RotationX -= mouseY;
         RotationX = Mathf.Clamp(RotationX, -90f, 90f);

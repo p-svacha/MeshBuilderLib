@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace EditorGeneration
 {
-    [CustomEditor(typeof(BuildingGenerator))]
-    public class Editor_BuildingGenerator : Editor
+    [CustomEditor(typeof(RoomGenerator))]
+    public class Editor_RoomGenerator : Editor
     {
         public override void OnInspectorGUI()
         {
-            BuildingGenerator Generator = (BuildingGenerator)target;
+            RoomGenerator Generator = (RoomGenerator)target;
 
             // Gets called every time a value is changed
             if (DrawDefaultInspector())
@@ -19,9 +19,9 @@ namespace EditorGeneration
             }
 
             // Add a Generate button
-            if (GUILayout.Button("Generate Building"))
+            if (GUILayout.Button("Generate Room"))
             {
-                Generator.GenerateBuilding(Generator.TestObject, BuildingGenerationSettings.GetRandomSettings());
+                Generator.GenerateRoom(Generator.TargetObject, RoomGenerationSettings.GetRandomSettings());
             }
 
         }

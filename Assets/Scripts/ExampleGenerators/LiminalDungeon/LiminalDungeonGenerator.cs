@@ -149,6 +149,7 @@ public class LiminalDungeonGenerator : MonoBehaviour
         else if(State == AlgorithmState.Finalize)
         {
             FinalizeDungeon();
+            State = AlgorithmState.Done;
         }
 
     }
@@ -263,7 +264,7 @@ public class LiminalDungeonGenerator : MonoBehaviour
         // Add a huge ceiling over everything to fix lighting bug
         GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
         plane.transform.position = new Vector3(0f, 30f, 0f);
-        plane.transform.localScale = new Vector3(20, 0f, 20);
+        plane.transform.localScale = new Vector3(100, 0f, 100);
 
         Player.GetComponent<PlayerController>().enabled = true;
     }

@@ -9,15 +9,15 @@ namespace MeshBuilderLib
     /// </summary>
     public class MeshRoom
     {
-        public MeshPolygon Floor;
-        public MeshPolygon Ceiling;
+        public MeshElement Floor;
+        public MeshElement Ceiling;
         public List<MeshPlane> Walls;
 
         public int FloorSubmeshIndex;
         public int CeilingSubmeshIndex;
         public int WallSubmeshIndex;
 
-        public MeshRoom(MeshPolygon floor, MeshPolygon ceiling, List<MeshPlane> walls, int floorSubmeshIndex, int ceilingSubmeshIndex, int wallSubmeshIndex)
+        public MeshRoom(MeshElement floor, MeshElement ceiling, List<MeshPlane> walls, int floorSubmeshIndex, int ceilingSubmeshIndex, int wallSubmeshIndex)
         {
             Floor = floor;
             Ceiling = ceiling;

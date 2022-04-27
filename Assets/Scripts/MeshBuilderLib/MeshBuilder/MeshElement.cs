@@ -5,14 +5,15 @@ using UnityEngine;
 namespace MeshBuilderLib
 {
     /// <summary>
-    /// A MeshPolygon represents a 2-dimensional irregular plane, defined by a Polygon. MeshPolygons are always flat on the y-axis.
+    /// A MeshElement is a basic data structure that contains vertex, triangle and submesh data of a part of a mesh.
     /// </summary>
-    public class MeshPolygon
+    public class MeshElement
     {
+        public int SubmeshIndex;
         public List<MeshVertex> Vertices;
         public List<MeshTriangle> Triangles;
 
-        public MeshPolygon(List<MeshVertex> vertices, List<MeshTriangle> triangles)
+        public MeshElement(int submeshIndex, List<MeshVertex> vertices, List<MeshTriangle> triangles)
         {
             Vertices = vertices;
             Triangles = triangles;

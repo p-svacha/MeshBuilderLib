@@ -6,6 +6,12 @@ namespace EditorGeneration
 {
     public class EditorMeshGenerator : MonoBehaviour
     {
-        public EditorMeshObject TestObject;
+        public EditorMeshObject TargetObject;
+
+        protected void InitGenerator(EditorMeshObject target)
+        {
+            target.ClearInEditor();
+            target.Init();
+        }
     }
 }
