@@ -32,13 +32,22 @@ namespace MeshBuilderLib
             Dimensions = new Vector2(MaxX - MinX, MaxY - MinY);
         }
 
-        public List<Vector2> GetUVs(float scaleFactor = 1f)
+        public List<Vector2> GetUVs(float scaleFactor = 1f, bool flipFaceDirection = false)
         {
             List<Vector2> UVs = new List<Vector2>();
             foreach (Vector2 v in Points)
             {
-                float uvX = (v.x - MinX) * scaleFactor;
-                float uvY = (v.y - MinY) * scaleFactor;
+                float uvX, uvY;
+                if (flipFaceDirection)
+                {
+                    uvX = (MaxX - v.x) * scaleFactor;
+                    uvY = (v.y - MinY) * scaleFactor;
+                }
+                else
+                {
+                    uvX = (v.x - MinX) * scaleFactor;
+                    uvY = (v.y - MinY) * scaleFactor;
+                }
                 UVs.Add(new Vector2(uvX, uvY));
             }
             return UVs;

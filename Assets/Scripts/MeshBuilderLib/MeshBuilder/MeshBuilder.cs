@@ -207,6 +207,17 @@ namespace MeshBuilderLib
         }
 
         /// <summary>
+        /// Create a MeshPlane out of 4 MeshVertices that already contain all UV data.
+        /// </summary>
+        public MeshPlane BuildPlane(int submeshIndex, MeshVertex mv1, MeshVertex mv2, MeshVertex mv3, MeshVertex mv4)
+        {
+            MeshTriangle tri1 = AddTriangle(submeshIndex, mv1, mv3, mv2);
+            MeshTriangle tri2 = AddTriangle(submeshIndex, mv1, mv4, mv3);
+
+            return new MeshPlane(mv1, mv2, mv3, mv4, tri1, tri2);
+        }
+
+        /// <summary>
         /// Builds a flat circle (y-axis) on the specified submesh and returns created vertices and triangles as a MeshElement.
         /// </summary>
         public MeshElement BuildCircle(int submeshIndex, Vector3 centerPosition, float radius, int nEdges, bool flipFaceDirection = false)
@@ -424,7 +435,7 @@ namespace MeshBuilderLib
         {
             List<MeshVertex> vertices = new List<MeshVertex>();
             List<MeshTriangle> triangles = new List<MeshTriangle>();
-            List<Vector2> uvs = polygon.GetUVs(uvScaling);
+            List<Vector2> uvs = polygon.GetUVs(uvScaling, flipFaceDirection);
             for (int i = 0; i < polygon.NumPoints; i++)
             {
                 vertices.Add(AddVertex(new Vector3(polygon.Points[i].x, altitude, polygon.Points[i].y), uvs[i]));
@@ -440,18 +451,18 @@ namespace MeshBuilderLib
         /// <summary>
         /// Builds and returns a room given its ground plan and height.
         /// </summary>
-        public MeshRoom BuildRoom(Polygon groundPlan, float height, float floorCeilUvScaling = 1f, float wallUvScaling = 1f)
+        public MeshRoom BuildRoom(Polygon groundPlan, float height, Material floorMat, Material wallMat, Material ceilMat, float floorCeilUvScaling = 1f, float wallUvScaling = 1f)
         {
             // Floor
-            int floorSubmeshIndex = AddNewSubmesh(MaterialHandler.Singleton.GetRandomFloorMaterial());
+            int floorSubmeshIndex = AddNewSubmesh(floorMat);
             MeshElement floor = BuildPolygon(floorSubmeshIndex, groundPlan, 0f, uvScaling: floorCeilUvScaling);
 
             // Ceiling
-            int ceilingSubmeshIndex = AddNewSubmesh(MaterialHandler.Singleton.GetRandomCeilingMaterial());
+            int ceilingSubmeshIndex = AddNewSubmesh(wallMat);
             MeshElement ceiling = BuildPolygon(ceilingSubmeshIndex, groundPlan, height, uvScaling: floorCeilUvScaling, flipFaceDirection: true);
 
             // Walls and exit points
-            int wallSubmeshIndex = AddNewSubmesh(MaterialHandler.Singleton.GetRandomWallMaterial());
+            int wallSubmeshIndex = AddNewSubmesh(ceilMat);
             List<MeshPlane> walls = new List<MeshPlane>();
             float uvStart = 0f;
             float uvEnd = 0f;
@@ -460,15 +471,13 @@ namespace MeshBuilderLib
                 Vector2 point = groundPlan.Points[i];
                 Vector2 nextPoint = i < groundPlan.Points.Count - 1 ? groundPlan.Points[i + 1] : groundPlan.Points[0];
 
-                uvEnd += Vector2.Distance(point, nextPoint);
+                uvEnd -= Vector2.Distance(point, nextPoint);
 
                 walls.Add(BuildPlane(wallSubmeshIndex,
-                    new Vector3(point.x, 0, point.y),
-                    new Vector3(point.x, height, point.y),
-                    new Vector3(nextPoint.x, height, nextPoint.y),
-                    new Vector3(nextPoint.x, 0, nextPoint.y),
-                    new Vector2(uvStart * wallUvScaling, 0),
-                    new Vector2(uvEnd * wallUvScaling, height * wallUvScaling)
+                    AddVertex(new Vector3(point.x, 0, point.y), new Vector2(uvStart * wallUvScaling, 0)),
+                    AddVertex(new Vector3(point.x, height, point.y), new Vector2(uvStart * wallUvScaling, height * wallUvScaling)),
+                    AddVertex(new Vector3(nextPoint.x, height, nextPoint.y), new Vector2(uvEnd * wallUvScaling, height * wallUvScaling)),
+                    AddVertex(new Vector3(nextPoint.x, 0, nextPoint.y), new Vector2(uvEnd * wallUvScaling, 0))
                     ));
 
                 uvStart = uvEnd;

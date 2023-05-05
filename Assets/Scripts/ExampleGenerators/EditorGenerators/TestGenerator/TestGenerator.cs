@@ -14,7 +14,7 @@ namespace EditorGeneration
         {
             InitGenerator(target);
 
-            int submeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
+            int submeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DebugMaterial);
             int nSegments = Random.Range(50, 100);
             List<float> radii = new List<float>();
             List<float> heights = new List<float>();

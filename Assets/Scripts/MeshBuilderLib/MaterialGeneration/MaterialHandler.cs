@@ -7,7 +7,7 @@ namespace MeshBuilderLib
     public class MaterialHandler : MonoBehaviour
     {
         [Header("Debug")]
-        public Material DefaultMaterial;
+        public Material DebugMaterial;
 
         [Header("Wood")]
         public Material WoodSiding;
@@ -31,7 +31,7 @@ namespace MeshBuilderLib
         public Material OfficeCeiling;
 
         private static MaterialHandler _Singleton;
-        public static MaterialHandler Singleton => _Singleton;
+        public static MaterialHandler Singleton => _Singleton != null ? _Singleton : GameObject.Find("MaterialHandler").GetComponent<MaterialHandler>();
 
         public void Start()
         {

@@ -12,9 +12,9 @@ namespace EditorGeneration
         {
             InitGenerator(target);
 
-            int sphereSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
+            int sphereSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DebugMaterial);
 
-            int nSpheres = Random.Range(2, 13);
+            int nSpheres = Random.Range(1, 1);
             for (int i = 0; i < nSpheres; i++)
             {
                 SpheresGenerationSettings settings = SpheresGenerationSettings.GetRandomSettings();
