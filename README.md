@@ -2,10 +2,10 @@
 This project contains a Unity library aiming to assist in procedural mesh generation. It's aim is to automate processes that have to be repeated often when dealing with (procedural) mesh generation in unity. It adds functionalities to initialize GameObjects for mesh generation, adding basic vertex, triangles and primitive shapes to meshes, and applying the mesh to GameObjects. Also includes support for submeshes and material and uv handling.
 
 # How to Use
-All the needed files are in Assets/Scripts/MeshBuilderLib. To use the library simply copy that folder into your project and import it by "using MeshBuilderLib".
+All the needed files are in **Assets/Scripts/MeshBuilderLib**. To use the library simply copy that folder into your project and import it by "using MeshBuilderLib".
 To use the functionalities create a new MeshBuilder object. You can then manipulate the mesh by using the several functions of the meshbuilder. When you're done, use the ApplyMesh function to update the mesh in the scene.
 
-The repo also includes some example projects that use the library. 
+The repo also includes some example projects that use the library and a MeterialHandler with some basic ready-to-use materials. To correctly use the example projects and materials also copy **Assets\Resources\Materials** into your project.
 
 # Editor example projects
 You'll find 2 generators that create meshes in-editor using the library. They are added to the default scene. Simply press the "Generate" button on their GameObjects to try them out.
