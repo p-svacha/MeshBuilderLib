@@ -12,7 +12,7 @@ namespace EditorGeneration
             InitGenerator(target);
 
             // Floor
-            int floorSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Instance.DefaultMaterial);
+            int floorSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
             List<MeshVertex> floorVertices = new List<MeshVertex>();
 
             List<Vector2> uvs = settings.GroundPlan.GetUVs(LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING);
@@ -24,7 +24,7 @@ namespace EditorGeneration
             for (int i = 0; i < floorTriangles.Length; i += 3) target.MeshBuilder.AddTriangle(floorSubmeshIndex, floorVertices[floorTriangles[i]], floorVertices[floorTriangles[i + 1]], floorVertices[floorTriangles[i + 2]]);
 
             // Ceiling
-            int ceilingSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Instance.DefaultMaterial);
+            int ceilingSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
             List<MeshVertex> ceilingVertices = new List<MeshVertex>();
 
             for (int i = 0; i < settings.GroundPlan.NumPoints; i++)
@@ -35,7 +35,7 @@ namespace EditorGeneration
             for (int i = 0; i < ceilingTriangles.Length; i += 3) target.MeshBuilder.AddTriangle(ceilingSubmeshIndex, ceilingVertices[ceilingTriangles[i]], ceilingVertices[ceilingTriangles[i + 1]], ceilingVertices[ceilingTriangles[i + 2]]);
 
             // Walls
-            int wallSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Instance.DefaultMaterial);
+            int wallSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
             List<MeshVertex> wallVertices = new List<MeshVertex>();
 
             float uvStart = 0f;

@@ -239,7 +239,7 @@ public class LiminalDungeonGenerator : MonoBehaviour
         Vector3 tr2 = ex2.GetOffsetPosition(CONNECTION_WIDTH / 2, CONNECTION_HEIGHT);
 
         MeshBuilder gateBuilder = new MeshBuilder("gate_" + Modules.Count, COLLISION_LAYER);
-        int gateSubmeshIndex = gateBuilder.AddNewSubmesh(MaterialHandler.Instance.WoodSiding);
+        int gateSubmeshIndex = gateBuilder.AddNewSubmesh(MaterialHandler.Singleton.WoodSiding);
         
         gateBuilder.BuildPlane(gateSubmeshIndex, bl1, br1, bl2, br2, Vector2.zero, Vector2.one); // Floor
         gateBuilder.BuildPlane(gateSubmeshIndex, bl1, br2, tr2, tl1, Vector2.zero, Vector2.one); // Right wall

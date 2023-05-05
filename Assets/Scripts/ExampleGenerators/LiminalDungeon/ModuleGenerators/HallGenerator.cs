@@ -26,7 +26,7 @@ namespace LiminalDungeonGeneration
             MeshBuilder meshBuilder = new MeshBuilder("hall", LiminalDungeonGenerator.COLLISION_LAYER);
             Polygon groundPlan = Polygon.GetRectangularPolygon(hallLength, hallWidth);
 
-            MeshRoom room = meshBuilder.BuildRoom(groundPlan, hallHeight);
+            MeshRoom room = meshBuilder.BuildRoom(groundPlan, hallHeight, LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING, LiminalDungeonGenerator.WALL_TEXTURE_SCALING);
             List<ExitPoint> exitPoints = ModuleGeneration.GetRandomExitPoints(room);
             GameObject moduleObject = meshBuilder.ApplyMesh(addCollider: true);
 

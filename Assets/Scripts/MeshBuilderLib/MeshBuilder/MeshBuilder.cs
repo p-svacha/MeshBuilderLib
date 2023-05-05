@@ -420,11 +420,11 @@ namespace MeshBuilderLib
         /// <summary>
         /// Builds and returns a 2-dimensional polygon, given it's layout and altitude. MeshPolygons are always flat on the y-axis.
         /// </summary>
-        public MeshElement BuildPolygon(int submeshIndex, Polygon polygon, float altitude, bool flipFaceDirection = false)
+        public MeshElement BuildPolygon(int submeshIndex, Polygon polygon, float altitude, float uvScaling = 1f, bool flipFaceDirection = false)
         {
             List<MeshVertex> vertices = new List<MeshVertex>();
             List<MeshTriangle> triangles = new List<MeshTriangle>();
-            List<Vector2> uvs = polygon.GetUVs(LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING);
+            List<Vector2> uvs = polygon.GetUVs(uvScaling);
             for (int i = 0; i < polygon.NumPoints; i++)
             {
                 vertices.Add(AddVertex(new Vector3(polygon.Points[i].x, altitude, polygon.Points[i].y), uvs[i]));
@@ -440,18 +440,18 @@ namespace MeshBuilderLib
         /// <summary>
         /// Builds and returns a room given its ground plan and height.
         /// </summary>
-        public MeshRoom BuildRoom(Polygon groundPlan, float height)
+        public MeshRoom BuildRoom(Polygon groundPlan, float height, float floorCeilUvScaling = 1f, float wallUvScaling = 1f)
         {
             // Floor
-            int floorSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomFloorMaterial());
-            MeshElement floor = BuildPolygon(floorSubmeshIndex, groundPlan, 0f);
+            int floorSubmeshIndex = AddNewSubmesh(MaterialHandler.Singleton.GetRandomFloorMaterial());
+            MeshElement floor = BuildPolygon(floorSubmeshIndex, groundPlan, 0f, uvScaling: floorCeilUvScaling);
 
             // Ceiling
-            int ceilingSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomCeilingMaterial());
-            MeshElement ceiling = BuildPolygon(ceilingSubmeshIndex, groundPlan, height, flipFaceDirection: true);
+            int ceilingSubmeshIndex = AddNewSubmesh(MaterialHandler.Singleton.GetRandomCeilingMaterial());
+            MeshElement ceiling = BuildPolygon(ceilingSubmeshIndex, groundPlan, height, uvScaling: floorCeilUvScaling, flipFaceDirection: true);
 
             // Walls and exit points
-            int wallSubmeshIndex = AddNewSubmesh(MaterialHandler.Instance.GetRandomWallMaterial());
+            int wallSubmeshIndex = AddNewSubmesh(MaterialHandler.Singleton.GetRandomWallMaterial());
             List<MeshPlane> walls = new List<MeshPlane>();
             float uvStart = 0f;
             float uvEnd = 0f;
@@ -467,8 +467,8 @@ namespace MeshBuilderLib
                     new Vector3(point.x, height, point.y),
                     new Vector3(nextPoint.x, height, nextPoint.y),
                     new Vector3(nextPoint.x, 0, nextPoint.y),
-                    new Vector2(uvStart * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, 0),
-                    new Vector2(uvEnd * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, height * LiminalDungeonGenerator.WALL_TEXTURE_SCALING)
+                    new Vector2(uvStart * wallUvScaling, 0),
+                    new Vector2(uvEnd * wallUvScaling, height * wallUvScaling)
                     ));
 
                 uvStart = uvEnd;

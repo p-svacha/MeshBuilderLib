@@ -1,4 +1,5 @@
 using EditorGeneration;
+using MeshBuilderLib;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace EditorGeneration
         {
             InitGenerator(target);
 
-            int sphereSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Instance.DefaultMaterial);
+            int sphereSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
 
             int nSpheres = Random.Range(2, 13);
             for (int i = 0; i < nSpheres; i++)

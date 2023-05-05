@@ -26,7 +26,7 @@ namespace LiminalDungeonGeneration
             Polygon groundPlan = Polygon.GetRandomPolygon();
             float height = Random.Range(MIN_HEIGHT, MAX_HEIGHT);
 
-            MeshRoom room = meshBuilder.BuildRoom(groundPlan, height);
+            MeshRoom room = meshBuilder.BuildRoom(groundPlan, height, LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING, LiminalDungeonGenerator.WALL_TEXTURE_SCALING);
             List<ExitPoint> exitPoints = ModuleGeneration.GetRandomExitPoints(room);
 
             GameObject moduleObject = meshBuilder.ApplyMesh(addCollider: true);

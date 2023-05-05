@@ -13,7 +13,7 @@ namespace EditorGeneration
 
             int groundPlanCorners = settings.GroundPlan.Points.Count;
 
-            target.MeshBuilder.AddNewSubmesh(MaterialHandler.Instance.DefaultMaterial);
+            target.MeshBuilder.AddNewSubmesh(MaterialHandler.Singleton.DefaultMaterial);
             int submeshIndex = 0;
 
             // Add outer vertices that follow the ground plan

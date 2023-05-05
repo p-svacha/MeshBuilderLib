@@ -59,18 +59,18 @@ namespace LiminalDungeonGeneration
             Vector3 t4 = new Vector3(0, moduleHeight, corridorWidth);
 
             // Add walls of corridor
-            int wallSubmeshIndex = meshBuilder.AddNewSubmesh(MaterialHandler.Instance.GetRandomWallMaterial());
+            int wallSubmeshIndex = meshBuilder.AddNewSubmesh(MaterialHandler.Singleton.GetRandomWallMaterial());
             MeshPlane leftWall = meshBuilder.BuildPlane(wallSubmeshIndex, b1, t1, t2, b2, Vector2.zero, new Vector2(corridorLength * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, moduleHeight * LiminalDungeonGenerator.WALL_TEXTURE_SCALING));
             MeshPlane exitWall1 = meshBuilder.BuildPlane(wallSubmeshIndex, b2, t2, t3, b3, Vector2.zero, new Vector2(corridorWidth * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, moduleHeight * LiminalDungeonGenerator.WALL_TEXTURE_SCALING));
             MeshPlane rightWall = meshBuilder.BuildPlane(wallSubmeshIndex, b3, t3, t4, b4, Vector2.zero, new Vector2(corridorLength * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, moduleHeight * LiminalDungeonGenerator.WALL_TEXTURE_SCALING));
             MeshPlane exitWall2 = meshBuilder.BuildPlane(wallSubmeshIndex, b4, t4, t1, b1, Vector2.zero, new Vector2(corridorWidth * LiminalDungeonGenerator.WALL_TEXTURE_SCALING, moduleHeight * LiminalDungeonGenerator.WALL_TEXTURE_SCALING));
 
             // Add ceiling
-            int ceilingSubmeshIndex = meshBuilder.AddNewSubmesh(MaterialHandler.Instance.GetRandomCeilingMaterial());
+            int ceilingSubmeshIndex = meshBuilder.AddNewSubmesh(MaterialHandler.Singleton.GetRandomCeilingMaterial());
             meshBuilder.BuildPlane(ceilingSubmeshIndex, t1, t4, t3, t2, Vector2.zero, new Vector2(corridorLength * LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING, corridorWidth * LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING));
 
             // Add floor
-            int floorSubmeshIndex = meshBuilder.AddNewSubmesh(MaterialHandler.Instance.GetRandomFloorMaterial());
+            int floorSubmeshIndex = meshBuilder.AddNewSubmesh(MaterialHandler.Singleton.GetRandomFloorMaterial());
             if(!hasElevationChange) meshBuilder.BuildPlane(floorSubmeshIndex, b1, b2, b3, b4, Vector2.zero, new Vector2(corridorWidth * LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING, corridorLength * LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING));
             else
             {
