@@ -32,7 +32,7 @@ namespace MeshBuilderLib
             Dimensions = new Vector2(MaxX - MinX, MaxY - MinY);
         }
 
-        public List<Vector2> GetUVs(float scaleFactor = LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING)
+        public List<Vector2> GetUVs(float scaleFactor)
         {
             List<Vector2> UVs = new List<Vector2>();
             foreach (Vector2 v in Points)

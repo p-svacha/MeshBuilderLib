@@ -424,7 +424,7 @@ namespace MeshBuilderLib
         {
             List<MeshVertex> vertices = new List<MeshVertex>();
             List<MeshTriangle> triangles = new List<MeshTriangle>();
-            List<Vector2> uvs = polygon.GetUVs();
+            List<Vector2> uvs = polygon.GetUVs(LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING);
             for (int i = 0; i < polygon.NumPoints; i++)
             {
                 vertices.Add(AddVertex(new Vector3(polygon.Points[i].x, altitude, polygon.Points[i].y), uvs[i]));

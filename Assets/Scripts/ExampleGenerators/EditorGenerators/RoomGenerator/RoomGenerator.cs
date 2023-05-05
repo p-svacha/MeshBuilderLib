@@ -15,7 +15,7 @@ namespace EditorGeneration
             int floorSubmeshIndex = target.MeshBuilder.AddNewSubmesh(MaterialHandler.Instance.DefaultMaterial);
             List<MeshVertex> floorVertices = new List<MeshVertex>();
 
-            List<Vector2> uvs = settings.GroundPlan.GetUVs();
+            List<Vector2> uvs = settings.GroundPlan.GetUVs(LiminalDungeonGenerator.FLOOR_TEXTURE_SCALING);
             for (int i = 0; i < settings.GroundPlan.NumPoints; i++)
             {
                 floorVertices.Add(target.MeshBuilder.AddVertex(new Vector3(settings.GroundPlan.Points[i].x, 0, settings.GroundPlan.Points[i].y), uvs[i]));
