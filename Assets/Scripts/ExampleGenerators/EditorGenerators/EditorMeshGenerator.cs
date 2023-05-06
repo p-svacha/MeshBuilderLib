@@ -8,6 +8,9 @@ namespace EditorGeneration
     {
         public EditorMeshObject TargetObject;
 
+        /// <summary>
+        /// Initializes the MeshBuilder of the target object within the editor.
+        /// </summary>
         protected void InitGenerator(EditorMeshObject target)
         {
             target.ClearInEditor();

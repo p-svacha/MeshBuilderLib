@@ -486,6 +486,50 @@ namespace MeshBuilderLib
             return new MeshRoom(floor, ceiling, walls, floorSubmeshIndex, ceilingSubmeshIndex, wallSubmeshIndex);
         }
 
+        /// <summary>
+        /// Builds a flat way along a path with a given width.
+        /// </summary>
+        public void BuildPath(Path path, float width, Material material, float uvScalingY = 1f)
+        {
+            int roadSubmeshIndex = AddNewSubmesh(material);
+
+            float currentUvY = 0f;
+
+            // Create initial two points
+            MeshVertex lastL = AddVertex(new Vector3(
+                path.Points[0].Position.x + ((width / 2) * Mathf.Sin(Mathf.Deg2Rad * path.Points[0].Angle - 90)),
+                path.Points[0].Position.y,
+                path.Points[0].Position.z + ((width / 2) * Mathf.Cos(Mathf.Deg2Rad * path.Points[0].Angle - 90))),
+                new Vector2(0f, currentUvY));
+            MeshVertex lastR = AddVertex(new Vector3(
+                path.Points[0].Position.x + ((width / 2) * Mathf.Sin(Mathf.Deg2Rad * path.Points[0].Angle + 90)),
+                path.Points[0].Position.y,
+                path.Points[0].Position.z + ((width / 2) * Mathf.Cos(Mathf.Deg2Rad * path.Points[0].Angle + 90))),
+                new Vector2(1f, currentUvY));
+
+            for (int i = 1; i < path.Points.Count; i++)
+            {
+                currentUvY += uvScalingY * Vector3.Distance(new Vector3(path.Points[i].Position.x, 0, path.Points[i].Position.z), new Vector3(path.Points[i - 1].Position.x, 0, path.Points[i - 1].Position.z));
+
+                // Connect current 2 points with last two points.
+                MeshVertex nextL = AddVertex(new Vector3(
+                    path.Points[i].Position.x + ((width / 2) * Mathf.Sin(Mathf.Deg2Rad * path.Points[i].Angle - 90)),
+                    path.Points[i].Position.y,
+                    path.Points[i].Position.z + ((width / 2) * Mathf.Cos(Mathf.Deg2Rad * path.Points[i].Angle - 90))),
+                    new Vector2(0f, currentUvY));
+                MeshVertex nextR = AddVertex(new Vector3(
+                    path.Points[i].Position.x + ((width / 2) * Mathf.Sin(Mathf.Deg2Rad * path.Points[i].Angle + 90)),
+                    path.Points[i].Position.y,
+                    path.Points[i].Position.z + ((width / 2) * Mathf.Cos(Mathf.Deg2Rad * path.Points[i].Angle + 90))),
+                    new Vector2(1f, currentUvY));
+
+                BuildPlane(roadSubmeshIndex, lastL, lastR, nextR, nextL);
+
+                lastL = nextL;
+                lastR = nextR;
+            }
+        }
+
         #endregion
 
         #region Complex Building

@@ -30,6 +30,9 @@ namespace MeshBuilderLib
         [Header("Ceiling")]
         public Material OfficeCeiling;
 
+        [Header("Road")]
+        public Material Road;
+
         private static MaterialHandler _Singleton;
         public static MaterialHandler Singleton => _Singleton != null ? _Singleton : GameObject.Find("MaterialHandler").GetComponent<MaterialHandler>();
 
