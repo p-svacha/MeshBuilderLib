@@ -22,7 +22,6 @@ namespace EditorGeneration
             if (GUILayout.Button("Generate Road"))
             {
                 RoadGenerationSettings settings = RoadGenerationSettings.GetRandomSettings();
-                settings.DebugPath(Generator.TargetObject.transform.position);
                 Generator.GenerateRoad(Generator.TargetObject, settings);
             }
 
