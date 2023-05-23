@@ -38,10 +38,10 @@ namespace MeshBuilderLib
         public PathLine(Vector3 center, float angle, float width)
         {
             Center = center;
-            Left = GetPosition(0f);
-            Right = GetPosition(1f);
             Angle = angle;
             Width = width;
+            Left = GetPosition(0f);
+            Right = GetPosition(1f);
         }
 
         /// <summary>
@@ -56,30 +56,6 @@ namespace MeshBuilderLib
                 Center.y,
                 Center.z + (relativeWidth * Mathf.Cos(Mathf.Deg2Rad * (Angle + 90)))
                 );
-        }
-
-        /// <summary>
-        /// Returns the position of the left end of the PathLine.
-        /// </summary>
-        public Vector3 GetLeftPoint()
-        {
-            return GetPosition(0f);
-        }
-
-        /// <summary>
-        /// Returns the position of the left end of the PathLine.
-        /// </summary>
-        public Vector3 GetRightPoint()
-        {
-            return GetPosition(1f);
-        }
-
-        /// <summary>
-        /// Returns the position in the center of the PathLine.
-        /// </summary>
-        public Vector3 GetCenterPoint()
-        {
-            return Center;
         }
     }
 }

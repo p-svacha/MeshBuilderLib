@@ -496,16 +496,16 @@ namespace MeshBuilderLib
             float currentUvY = 0f;
 
             // Create initial two points
-            MeshVertex lastL = AddVertex(path.Points[0].GetLeftPoint(), new Vector2(0f, currentUvY));
-            MeshVertex lastR = AddVertex(path.Points[0].GetRightPoint(), new Vector2(1f, currentUvY));
+            MeshVertex lastL = AddVertex(path.Points[0].Left, new Vector2(0f, currentUvY));
+            MeshVertex lastR = AddVertex(path.Points[0].Right, new Vector2(1f, currentUvY));
 
             for (int i = 1; i < path.Points.Count; i++)
             {
-                currentUvY += uvScalingY * Vector3.Distance(new Vector3(path.Points[i].GetCenterPoint().x, 0, path.Points[i].GetCenterPoint().z), new Vector3(path.Points[i - 1].GetCenterPoint().x, 0, path.Points[i - 1].GetCenterPoint().z));
+                currentUvY += uvScalingY * Vector3.Distance(new Vector3(path.Points[i].Center.x, 0, path.Points[i].Center.z), new Vector3(path.Points[i - 1].Center.x, 0, path.Points[i - 1].Center.z));
 
                 // Connect current 2 points with last two points.
-                MeshVertex nextL = AddVertex(path.Points[i].GetLeftPoint(), new Vector2(0f, currentUvY));
-                MeshVertex nextR = AddVertex(path.Points[i].GetRightPoint(), new Vector2(1f, currentUvY));
+                MeshVertex nextL = AddVertex(path.Points[i].Left, new Vector2(0f, currentUvY));
+                MeshVertex nextR = AddVertex(path.Points[i].Right, new Vector2(1f, currentUvY));
 
                 BuildPlane(roadSubmeshIndex, lastL, lastR, nextR, nextL);
 
