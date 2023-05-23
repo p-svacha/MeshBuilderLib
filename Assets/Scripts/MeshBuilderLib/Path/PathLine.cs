@@ -5,18 +5,41 @@ using UnityEngine;
 namespace MeshBuilderLib
 {
     /// <summary>
-    /// A PathLine represents a crosssection of a path at a certain position that stretches across the path from the left end to the right end.
+    /// A PathLine represents a cross-section of a path at a certain position that stretches across the path from the left end to the right end.
     /// The elevation is the same across all of a path line.
     /// </summary>
     public class PathLine
     {
-        private Vector3 Position;
+        /// <summary>
+        /// Center point of the PathLine. Point in the middle of the path.
+        /// </summary>
+        public Vector3 Center { get; private set; }
+
+        /// <summary>
+        /// Leftmost point on the PathLine.
+        /// </summary>
+        public Vector3 Left { get; private set; }
+
+        /// <summary>
+        /// Rightmost point on the PathLine.
+        /// </summary>
+        public Vector3 Right { get; private set; }
+
+        /// <summary>
+        /// World angle in degrees towards the next path line.
+        /// </summary>
         public float Angle { get; private set; }
+
+        /// <summary>
+        /// Width of the path from left to right.
+        /// </summary>
         public float Width { get; private set; }
 
-        public PathLine(Vector3 position, float angle, float width)
+        public PathLine(Vector3 center, float angle, float width)
         {
-            Position = position;
+            Center = center;
+            Left = GetPosition(0f);
+            Right = GetPosition(1f);
             Angle = angle;
             Width = width;
         }
@@ -29,9 +52,9 @@ namespace MeshBuilderLib
         {
             float relativeWidth = -(Width / 2) + (Width * relativePos);
             return new Vector3(
-                Position.x + (relativeWidth * Mathf.Sin(Mathf.Deg2Rad * (Angle + 90))),
-                Position.y,
-                Position.z + (relativeWidth * Mathf.Cos(Mathf.Deg2Rad * (Angle + 90)))
+                Center.x + (relativeWidth * Mathf.Sin(Mathf.Deg2Rad * (Angle + 90))),
+                Center.y,
+                Center.z + (relativeWidth * Mathf.Cos(Mathf.Deg2Rad * (Angle + 90)))
                 );
         }
 
@@ -56,7 +79,7 @@ namespace MeshBuilderLib
         /// </summary>
         public Vector3 GetCenterPoint()
         {
-            return Position;
+            return Center;
         }
     }
 }
