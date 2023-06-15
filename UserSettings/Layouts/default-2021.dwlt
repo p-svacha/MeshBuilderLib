@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 1920
+    x: 0
     y: 43
     width: 1920
     height: 997
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 22
+  controlID: 28
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -111,7 +111,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ConsoleWindow
+  m_Name: ProjectBrowser
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -120,14 +120,14 @@ MonoBehaviour:
     y: 557
     width: 1466
     height: 390
-  m_MinSize: {x: 101, y: 121}
-  m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 18}
+  m_MinSize: {x: 231, y: 271}
+  m_MaxSize: {x: 10001, y: 10021}
+  m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
   - {fileID: 18}
-  m_Selected: 1
-  m_LastSelected: 0
+  m_Selected: 0
+  m_LastSelected: 1
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 23
+  controlID: 29
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 24
+  controlID: 30
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -276,7 +276,7 @@ MonoBehaviour:
   - {fileID: 17}
   - {fileID: 12}
   m_Selected: 0
-  m_LastSelected: 2
+  m_LastSelected: 1
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -1472,7 +1472,7 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1920
+    x: 0
     y: 630
     width: 1465
     height: 369
@@ -1493,22 +1493,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/MeshBuilderLib/Path
+    - Assets/Resources/Materials/Fabric/Carpet
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts/MeshBuilderLib/Path
+  - Assets/Resources/Materials/Fabric/Carpet
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Workspace\Unity\MeshBuilderLib
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 87}
-    m_SelectedIDs: 8a5d0000
-    m_LastClickedID: 23946
-    m_ExpandedIDs: 00000000f05b0000f25b0000f45b0000f65b0000f85b0000fa5b0000fc5b0000fe5b0000865d000000ca9a3b
+    scrollPos: {x: 0, y: 60}
+    m_SelectedIDs: dc5d0000
+    m_LastClickedID: 24028
+    m_ExpandedIDs: 00000000f05b0000f25b0000f45b0000f65b0000f85b0000fa5b0000fc5b0000fe5b0000805d0000865d0000d25d000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1561,8 +1561,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 56120000
-    m_LastClickedInstanceID: 4694
+    m_SelectedInstanceIDs: 
+    m_LastClickedInstanceID: 0
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
@@ -1612,7 +1612,7 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 3386
+    x: 1466
     y: 73
     width: 453
     height: 926
@@ -1653,7 +1653,7 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1920
+    x: 0
     y: 73
     width: 362
     height: 536
@@ -1664,8 +1664,8 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 405b0000
-      m_LastClickedID: 23360
+      m_SelectedIDs: 
+      m_LastClickedID: 0
       m_ExpandedIDs: 36fbffff0c5b0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
@@ -1682,7 +1682,7 @@ MonoBehaviour:
         m_IsRenaming: 0
         m_OriginalEventType: 11
         m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 4}
+        m_ClientGUIView: {fileID: 11}
       m_SearchString: 
     m_ExpandedScenes: []
     m_CurrenRootInstanceID: 0
@@ -1710,7 +1710,7 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 2283
+    x: 363
     y: 73
     width: 1101
     height: 536
@@ -1948,13 +1948,13 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 228.77783, y: -647.2687, z: 921.9907}
+    m_Target: {x: -114.746124, y: 2.3694475, z: 113.54615}
     speed: 2
-    m_Value: {x: 228.77783, y: -647.2687, z: 921.9907}
+    m_Value: {x: -114.746124, y: 2.3694475, z: 113.54615}
   m_RenderMode: 0
   m_CameraMode:
-    drawMode: 2
-    name: Shaded Wireframe
+    drawMode: 0
+    name: Shaded
     section: Shading Mode
   m_ValidateTrueMetals: 0
   m_DoValidateTrueMetals: 0
@@ -1997,13 +1997,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.3161425, y: 0.19288878, z: -0.0656441, w: 0.9264531}
+    m_Target: {x: -0.10692607, y: 0.60340506, z: -0.082224086, w: -0.7857859}
     speed: 2
-    m_Value: {x: 0.31766585, y: 0.19142233, z: -0.065464176, w: 0.9263694}
+    m_Value: {x: -0.108118296, y: 0.6033561, z: -0.08313916, w: -0.7857224}
   m_Size:
-    m_Target: 566.87256
+    m_Target: 10
     speed: 2
-    m_Value: 566.87256
+    m_Value: 10
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -2021,7 +2021,7 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: -0.19319786, y: 0.09065598, z: -0.01834821, w: -0.9767542}
+  m_LastSceneViewRotation: {x: 0.2932783, y: 0.62516624, z: -0.27368736, w: 0.66935015}
   m_LastSceneViewOrtho: 0
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 
@@ -2140,7 +2140,7 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1920
+    x: 0
     y: 630
     width: 1465
     height: 369

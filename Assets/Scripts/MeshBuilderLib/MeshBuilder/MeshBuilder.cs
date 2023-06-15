@@ -37,7 +37,7 @@ namespace MeshBuilderLib
         /// <summary>
         /// Create a MeshBuilder for a new GameObject. Does not creat any submesh.
         /// </summary>
-        public MeshBuilder(string name, string layer, Transform parent = null)
+        public MeshBuilder(string name, string layer = "Default", Transform parent = null)
         {
             MeshObject = new GameObject(name);
             MeshObject.layer = LayerMask.NameToLayer(layer);
@@ -512,6 +512,49 @@ namespace MeshBuilderLib
                 lastL = nextL;
                 lastR = nextR;
             }
+        }
+
+        /// <summary>
+        /// Builds an inside-faced wall on one side of a path. Height of the wall can be set per PathLine.
+        /// </summary>
+        public void BuildPathWall(Path path, Material material, List<float> height, bool onLeft, float uvScaling = 1f)
+        {
+            if (path.Points.Count != height.Count) throw new System.Exception("The list of heights must be of equal length as the path. Path Length = " + path.Points.Count + ", Heightlist Length = " + height.Count);
+
+            int wallSubmeshIndex = AddNewSubmesh(material);
+
+            float currentUvX = 0f;
+
+            // Create initial two points
+            Vector3 currentPathPos = onLeft ? path.Points[0].Left : path.Points[0].Right;
+            MeshVertex lastBot = AddVertex(currentPathPos, new Vector2(currentUvX, 0f));
+            MeshVertex lastTop = AddVertex(currentPathPos + new Vector3(0f, height[0], 0f), new Vector2(currentUvX, height[0]));
+
+            for (int i = 1; i < path.Points.Count; i++)
+            {
+                currentUvX += uvScaling * Vector3.Distance(new Vector3(path.Points[i].Center.x, 0, path.Points[i].Center.z), new Vector3(path.Points[i - 1].Center.x, 0, path.Points[i - 1].Center.z));
+
+                // Connect current 2 points with last two points.
+                currentPathPos = onLeft ? path.Points[i].Left : path.Points[i].Right;
+                MeshVertex nextBot = AddVertex(currentPathPos, new Vector2(currentUvX, 0f));
+                MeshVertex nextTop = AddVertex(currentPathPos + new Vector3(0f, height[i], 0f), new Vector2(currentUvX, height[i]));
+
+                //BuildPlane(wallSubmeshIndex, lastBot, lastTop, nextTop, nextBot); // uncomment to make it two-sided, doesn't work tho (shadows turn full black)
+                BuildPlane(wallSubmeshIndex, lastBot, nextBot, nextTop, lastTop);
+
+                lastBot = nextBot;
+                lastTop = nextTop;
+            }
+        }
+
+        /// <summary>
+        /// Builds an inside-faced two-sided wall on one side of a path with a static height.
+        /// </summary>
+        public void BuildPathWall(Path path, Material material, float height, bool onLeft, float uvScaling = 1f)
+        {
+            List<float> heights = new List<float>();
+            for (int i = 0; i < path.Points.Count; i++) heights.Add(height);
+            BuildPathWall(path, material, heights, onLeft, uvScaling);
         }
 
         #endregion

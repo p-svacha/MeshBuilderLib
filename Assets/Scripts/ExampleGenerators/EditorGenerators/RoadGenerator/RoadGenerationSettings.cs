@@ -8,18 +8,21 @@ namespace EditorGeneration
     public class RoadGenerationSettings
     {
         public Path Path;
-        public Material Material;
+        public Material RoadMaterial;
+        public Material WallMaterial;
 
-        public RoadGenerationSettings(Path path, Material material)
+        public RoadGenerationSettings(Path path, Material roadMaterial, Material wallMaterial)
         {
             Path = path;
-            Material = material;
+            RoadMaterial = roadMaterial;
+            WallMaterial = wallMaterial;
         }
 
         public static RoadGenerationSettings GetRandomSettings()
         {
             int numSegments = 1000;
-            Material material = MaterialHandler.Singleton.Road;
+            Material roadMaterial = MaterialHandler.Singleton.Road;
+            Material wallMaterial = MaterialHandler.Singleton.WoodSiding;
 
             float currentWidth = 10f;
             float minWidth = 5;
@@ -83,7 +86,7 @@ namespace EditorGeneration
 
             Path path = new Path(pathPoints);
 
-            return new RoadGenerationSettings(path, material);
+            return new RoadGenerationSettings(path, roadMaterial, wallMaterial);
         }
     }
 }
