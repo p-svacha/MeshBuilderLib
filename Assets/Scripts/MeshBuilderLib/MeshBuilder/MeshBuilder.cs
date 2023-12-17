@@ -10,7 +10,7 @@ namespace MeshBuilderLib
         /// <summary>
         /// The GameObject the MeshBuilder is working on.
         /// </summary>
-        public GameObject MeshObject { get; private set; }
+        private GameObject MeshObject;
 
         /// <summary>
         /// Vertex data of the mesh. Contains position and uv for all vertices. Vertex data is shared across submeshes.
