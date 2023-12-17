@@ -35,7 +35,8 @@ namespace MeshBuilderLib
         #region Instancing
 
         /// <summary>
-        /// Create a MeshBuilder for a new GameObject. Does not creat any submesh.
+        /// Create a MeshBuilder for a new GameObject.
+        /// <br/> Does not create any submesh.
         /// </summary>
         public MeshBuilder(string name, string layer = "Default", Transform parent = null)
         {
@@ -48,7 +49,8 @@ namespace MeshBuilderLib
         }
 
         /// <summary>
-        /// Create a MeshBuilder for an existing object. Used to add/modify a mesh. Material is given for the first submesh. Does not creat any submesh.
+        /// Create a MeshBuilder for an existing object. Used to add/modify a mesh. 
+        /// <br/> Does not create any submesh.
         /// </summary>
         public MeshBuilder(GameObject meshObject)
         {
